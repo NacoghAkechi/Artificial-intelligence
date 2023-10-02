@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """
+# 1. Libraries
 """
 
 !pip install torchdata
@@ -11,11 +12,17 @@ import torchtext
 train_iter, test_iter = torchtext.datasets.IMDB(split = ('train', 'test'))
 tokenizer = torchtext.data.utils.get_tokenizer('basic_english')
 
+""" LSTM Model """
+
 MODEL_NAME = "imdb-rnn.model"
 EPOCH = 10
 BATCHSIZE = 64
 LR = 1e-4
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+"""
+# 2. Load Data
+"""
 
 train_data = [(label, tokenizer(line)) for label, line in train_iter]
 train_data.sort(key = lambda x: len(x[1]))
@@ -109,19 +116,6 @@ def word2id(bb, vocabidx):
 train_data = word2id(train_data, vocabidx)
 test_data = word2id(test_data, vocabidx)
 
-# class MyRNN(torch.nn.Module):
-#   def __init__(self):
-#     super(MyRNN, self).__init__()
-#     vocabsize = len(vocablist)
-#     self.emb = torch.nn.Embedding(vocabsize, 300, padding_idx = vocabidx['<pad>'])
-#     self.l1 = torch.nn.Linear(300, 300)
-#     self.l2 = torch.nn.Linear(300, 2)
-#   def forward(self, x):
-#     e = self.emb(x)
-#     h = torch.zeros(e[0].size(), dtype = torch.float32).to(DEVICE)
-#     for i in range(x.size()[0]):
-#       h = F.relu(e[i] + self.l1(h))
-#     return self.l2(h)
 class MyLSTM(torch.nn.Module):
   def __init__(self, vocab_size, embedding_dim, hidden_dim, output_dim):
     super(MyLSTM, self).__init__()
@@ -133,25 +127,8 @@ class MyLSTM(torch.nn.Module):
     embedded = self.embedding(text)
     output, (hidden, cell) = self.lstm(embedded)
     return self.fc(hidden[-1])
-
-# def train():
-#   model = MyRNN().to(DEVICE)
-#   optimizer = torch.optim.Adam(model.parameters(), lr=LR)
-#   for epoch in range(EPOCH):
-#     loss = 0
-#     for tokenlists, labels in train_data:
-#       tokenlists = torch.tensor(tokenlists, dtype=torch.int64).transpose(0,1).to(DEVICE)
-#       labels = torch.tensor(labels, dtype = torch.int64).to(DEVICE)
-#       optimizer.zero_grad()
-#       y = model(tokenlists)
-#       batchloss = F.cross_entropy(y, labels)
-#       batchloss.backward()
-#       optimizer.step()
-#       loss = loss + batchloss.item()
-#     print("epoch: {}, loss: {}".format(epoch, loss))
-#     torch.save(model.state_dict(), MODEL_NAME)
-
-# train()
+    
+"""# Train"""
 
 def train():
   model = MyLSTM(len(vocablist), embedding_dim=300, hidden_dim=256, output_dim=2).to(DEVICE)
@@ -170,25 +147,9 @@ def train():
     print("epoch", epoch, ": loss", loss)
   torch.save(model.state_dict(), MODEL_NAME)
 
-# def test():
-#   total = 0
-#   correct = 0
-#   model = MyRNN().to(DEVICE)
-#   model.load_state_dict(torch.load(MODEL_NAME))
-#   model.eval()
-#   for tokenlists, labels in test_data:
-#     total += len(labels)
-#     tokenlists = torch.tensor(tokenlists, dtype = torch.int64).transpose(0,1).to(DEVICE)
-#     labels = torch.tensor(labels, dtype = torch.int64).to(DEVICE)
-#     y = model(tokenlists)
-#     pred_labels = y.max(dim=1)[1]
-#     correct += (pred_labels == labels).sum()
+train()
 
-#   print("correct:", correct.item())
-#   print("total:", total)
-#   print("accuracy:", correct.item() / float(total))
-
-# test()
+"""# Test"""
 
 def test():
   total = 0
@@ -209,7 +170,5 @@ def test():
   print("correct:", correct)
   print("total:", total)
   print("accuracy:", correct / float(total))
-
-train()
 
 test()
