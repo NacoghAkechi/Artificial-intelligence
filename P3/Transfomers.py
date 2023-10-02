@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """
+# 1. Libraries
 """
 
 import numpy as np
@@ -16,6 +17,10 @@ EPOCH = 30
 BATCHSIZE = 16
 LR = 0.0001
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+"""
+# 2. Load Data
+"""
 
 url = 'https://nlp.stanford.edu/projects/nmt/data/iwslt15.en-vi/'
 train_en = [line.split() for line in requests.get(url+'train.en').text.splitlines()]
@@ -34,14 +39,14 @@ def make_vocab(train_data, min_freq):
     for token in tokenlist:
       if token not in vocab:
         vocab[token] = 0
-      vocab[token] += 1 # Đếm các từ data
-  vocablist = [('<unk>',0),('<pad>', 0), ('<cls>', 0), ('<eos>', 0)] # Danh sách các tuple đặc trưng trước
-  vocabidx = {} # dict của tuple
-  for token, freq in vocab.items(): # Từ đó , với số lượng của từ đó trong train data
-    if freq >= min_freq: # Số lượng từ mà > 3
-      idx = len(vocablist) # đang là 4
-      vocablist.append((token, freq)) #Từ đó , với số lượng của từ đó trong train data
-      vocabidx[token] = idx  # Từ điển (dict)
+      vocab[token] += 1 
+  vocablist = [('<unk>',0),('<pad>', 0), ('<cls>', 0), ('<eos>', 0)] 
+  vocabidx = {} 
+  for token, freq in vocab.items(): 
+    if freq >= min_freq: 
+      idx = len(vocablist) 
+      vocablist.append((token, freq)) 
+      vocabidx[token] = idx  
   vocabidx['<unk>'] = 0
   vocabidx['<pad>'] = 1
   vocabidx['<cls>'] = 2
@@ -206,6 +211,8 @@ class Seq2SeqTransformer(nn.Module):
 
 import time
 torch.manual_seed(0)
+
+""" Transformers Model """
 
 MODELNAME = 'transfomers.model'
 SRC_VOCAB_SIZE = len(vocablist_en)
