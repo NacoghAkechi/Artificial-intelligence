@@ -120,8 +120,6 @@ class ResNet(nn.Module):
 
     return nn.Sequential(*layers)
 
-"""# Resnet50"""
-
 """# Train"""
 
 def train():
@@ -166,7 +164,3 @@ def test():
   print("accuracy: ", correct.item()/total)
 
 test()
-
-
-
-
