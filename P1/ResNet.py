@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-
 # 1. Libraries
 """
 
@@ -21,7 +20,8 @@ MODELNAME = "cifar.model"
 EPOCH = 10
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-"""# 2.Load Data
+"""
+# 2.Load Data
 
 **Train - Test**
 """
@@ -122,6 +122,8 @@ class ResNet(nn.Module):
 
 """# Resnet50"""
 
+"""# Train"""
+
 def train():
   model = ResNet(Block, [3,4,6,3]).to(DEVICE)
   optimizer = torch.optim.Adam(model.parameters())
@@ -143,6 +145,8 @@ def train():
   torch.save(model.state_dict(), MODELNAME)
 
 train()
+
+"""# Test"""
 
 def test():
   correct = 0
